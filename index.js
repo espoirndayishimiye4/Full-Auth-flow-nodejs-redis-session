@@ -16,7 +16,7 @@ app.use(
     session({
       store: new RedisStore({ client: redisClient }),
       saveUninitialized: false,
-      secret: "keyboard cat",
+      secret: "my secret key",
       resave: false,
     })
   )
@@ -31,7 +31,5 @@ app.use(express.json())
 
 app.use('/user', require('./routes/user'))
 
-mongoose.connection.once('open', ()=>{
-    console.log('DB connected')
-    app.listen(process.env.PORT,()=>{console.log(`server is running on port ${process.env.PORT}`)})
-})
+app.listen(process.env.PORT,()=>{console.log(`server is running on port ${process.env.PORT}`)})
+
