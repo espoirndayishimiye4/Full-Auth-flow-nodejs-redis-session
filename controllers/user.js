@@ -18,10 +18,10 @@ const register = async (req, res)=>{
         id: user._id,
         email: user.email,
       };
-    await client.connect();
+     await client.connect();
 
-    await client.set(token, userData)
-    await client.disconnect()
+     await client.setEx(token, 3600, userData)
+     await client.disconnect()
     await sendAccountActivationEmail(token, user)
     res.status(201).json({
         success: true,
@@ -29,10 +29,10 @@ const register = async (req, res)=>{
     })
 }
 
-const activeAccount = ()=>{
+const activeAccount = async (req, res)=>{
     const token = req.param.token
     await client.connect();
-    client.exists(token, function(err, reply) {
+    client.exists(token, async function(err, reply) {
         if (reply === 1) {
             const user = await User.findByIdAndUpdate(req.params._id, req.body,{new:true})
             res.status(200).json({
@@ -44,7 +44,7 @@ const activeAccount = ()=>{
         }
       });
 }
-const login = (req, res)=>{
+const login = async (req, res)=>{
     const {email, password} = req.body
     const user = await User.findOne({email: req.body.email, status: true})
     if(!user) throw new NotFound('no user with this email exists')
@@ -64,7 +64,11 @@ const login = (req, res)=>{
     })
 }
 
-const logout = (req, res)=>{
+const resetPassword = async (req, res) =>{
+
+}
+
+const logout = async (req, res)=>{
     const token = req.param.token
     await client.connect();
     await client.del(token)
@@ -73,4 +77,4 @@ const logout = (req, res)=>{
     })
 }
 
-module.exports = {register, activeAccount, login, logout}
+module.exports = {register, activeAccount, login, logout, resetPassword}
